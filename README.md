@@ -8,7 +8,7 @@
 
 | パス | 内容 | 読み手 |
 |---|---|---|
-| `AGENTS.md` | 全ハーネス共通の指示（言語・安全・環境・検証・ブリッジ） | DSH: 自動 / opencode: `instructions` 設定 |
+| `AGENTS.md` | 全ハーネス共通の指示（言語・安全・環境・検証・ブリッジ・文書形式・Rust・MCP原則） | DSH: 自動 / opencode: `instructions` 設定 |
 | `skills/<name>/SKILL.md` | Agent Skills 標準のスキル | DSH / opencode: 自動 |
 | `hooks/hooks.json` | Codex 系フック設定（ハーネス固有・参考） | Codex |
 | `.skill-lock.json` | 外部スキルの導入来歴（skills CLI 管理・非追跡） | skills CLI |
@@ -67,7 +67,9 @@ PY
 1. **Phase 1（2026-11-12 実施）**: スキルを `~/.agents/skills` に一本化、共通指示を
    `~/.agents/AGENTS.md` に集約、opencode へ `instructions` 追加、環境事実とブリッジ節の
    重複を排除、`~/.dsh` の旧 symlink を撤去。
-2. **Phase 2**: `AGENTS.md` / 43KB の opencode 指示を共通コアとハーネス固有に分割・スリム化。
+2. **Phase 2（2026-11-13 実施）**: 共通コア 28KB / opencode 固有 9.5KB に分割。ハーネス固有語は
+   opencode 側へ移動し、チャット応答の frontmatter/markdownlint 適用を成果物限定に修正。
+   markdownlint 0 issues。
 3. **Phase 3**: サブエージェント定義（`agents/`）の共有、MCP 単一ソース化（`mcp.json`）、
    生成・検証スクリプト（`bin/`）の整備。
 
@@ -77,3 +79,5 @@ PY
   （ai-selection / cross-review / doc-create / okf / opencode-environment-report /
   policy-law / review-flow / tech-selection / test-spec / typst / userscript-validator）を移管。
   壊れていた `skills/okf` を修復（SKILL.md + scripts を統合）。
+- 2026-11-13: Phase 2。`AGENTS.md` を共通コア（28KB）と opencode 固有（9.5KB）に分割。
+  合計 37.5KB（旧 44.5KB）。

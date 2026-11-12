@@ -1,0 +1,23 @@
+# 外部から導入したスキル（.skill-lock.json / Codex・Copilot バンドル管理）は追跡しない。
+# 個人作成のスキルだけを下の whitelist で追跡する。
+skills/*
+!skills/ai-selection/
+!skills/cross-review/
+!skills/doc-create/
+!skills/gemini-doc/
+!skills/okf/
+!skills/opencode-environment-report/
+!skills/policy-law/
+!skills/review-flow/
+!skills/tech-selection/
+!skills/test-spec/
+!skills/typst/
+!skills/userscript-validator/
+
+# インストール来歴（外部ツールが更新する）
+.skill-lock.json
+.copilot-for-azure-skills-manifest.json
+
+# バックアップ・一時ファイル
+*.bak
+*.bak-*

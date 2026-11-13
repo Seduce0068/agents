@@ -1,0 +1,69 @@
+{
+  "$comment": "opencode 固有のサブエージェント上書き。正本は ~/.agents/agents/*.md、ここには opencode でしか通用しない値だけを置く。",
+  "version": 1,
+  "accessPermissions": {
+    "read-only": [
+      { "action": "read", "resource": "*", "effect": "allow" },
+      { "action": "glob", "resource": "*", "effect": "allow" },
+      { "action": "grep", "resource": "*", "effect": "allow" },
+      { "action": "edit", "resource": "*", "effect": "deny" },
+      { "action": "shell", "resource": "*", "effect": "deny" },
+      { "action": "subagent", "resource": "*", "effect": "deny" },
+      { "action": "webfetch", "resource": "*", "effect": "ask" },
+      { "action": "websearch", "resource": "*", "effect": "ask" }
+    ],
+    "tests-only": [
+      { "action": "read", "resource": "*", "effect": "allow" },
+      { "action": "glob", "resource": "*", "effect": "allow" },
+      { "action": "grep", "resource": "*", "effect": "allow" },
+      { "action": "edit", "resource": "*", "effect": "allow" },
+      { "action": "shell", "resource": "*", "effect": "deny" },
+      { "action": "subagent", "resource": "*", "effect": "deny" },
+      { "action": "webfetch", "resource": "*", "effect": "ask" },
+      { "action": "websearch", "resource": "*", "effect": "ask" }
+    ]
+  },
+  "agents": {
+    "arch-reviewer": {
+      "model": "openrouter/freecoder",
+      "fallbackModels": [
+        "nvidia/deepseek-ai/deepseek-v4.1-flash",
+        "ollama-cloud/beam",
+        "opencode/deepseek-v4.1-flash-free"
+      ]
+    },
+    "ops-reviewer": {
+      "model": "openrouter/freecoder",
+      "fallbackModels": [
+        "nvidia/deepseek-ai/deepseek-v4.1-flash",
+        "ollama-cloud/beam",
+        "opencode/deepseek-v4.1-flash-free"
+      ]
+    },
+    "security-reviewer": {
+      "model": "opencode-go/deepseek-v4-pro#high",
+      "fallbackModels": [
+        "openrouter/freecoder",
+        "nvidia/deepseek-ai/deepseek-v4.1-flash",
+        "opencode/deepseek-v4.1-flash-free"
+      ]
+    },
+    "test-author": {
+      "model": "opencode-go/beam-free#max",
+      "fallbackModels": [
+        "ollama-cloud/beam",
+        "nvidia/deepseek-ai/deepseek-v4.1-flash",
+        "openrouter/freecoder",
+        "opencode/deepseek-v4.1-flash-free"
+      ]
+    },
+    "test-reviewer": {
+      "model": "openrouter/freecoder",
+      "fallbackModels": [
+        "nvidia/deepseek-ai/deepseek-v4.1-flash",
+        "ollama-cloud/beam",
+        "opencode/deepseek-v4.1-flash-free"
+      ]
+    }
+  }
+}

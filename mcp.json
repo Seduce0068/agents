@@ -1,0 +1,359 @@
+{
+  "$comment": "ハーネス非依存のMCP単一ソース。正本はこのファイル。harnesses.<name> が各ハーネスのネイティブ表現。",
+  "version": 1,
+  "servers": {
+    "agentrouter-capabilities": {
+      "description": "AgentRouter capability gateway (email/phone等のツール)。既定は無効。",
+      "enabled": false,
+      "harnesses": {
+        "opencode": {
+          "type": "remote",
+          "url": "https://mcp.agentrouter.to",
+          "headers": {
+            "Authorization": "Bearer {env:AGENTIC_API_KEY}"
+          },
+          "timeout": {
+            "startup": 30000,
+            "catalog": 30000,
+            "execution": 120000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（専用クライアント実装が必要）"
+        }
+      }
+    },
+    "chrome-devtools": {
+      "description": "Chrome DevTools プロトコル経由のブラウザ診断。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "local",
+          "cwd": ".",
+          "command": [
+            "node",
+            "{env:HOME}/.config/opencode/chrome-devtools-mcp-launcher.cjs",
+            "--headless",
+            "--userDataDir",
+            ".opencode/browser-session",
+            "--no-usage-statistics"
+          ],
+          "environment": {
+            "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+          },
+          "timeout": {
+            "startup": 45000,
+            "catalog": 30000,
+            "execution": 300000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（ランチャーがopencode設定ディレクトリ前提）"
+        }
+      }
+    },
+    "context7": {
+      "description": "ライブラリ/CLI/クラウド公式ドキュメント（リモート）。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "remote",
+          "url": "https://mcp.context7.com/mcp",
+          "timeout": {
+            "startup": 30000,
+            "catalog": 30000,
+            "execution": 120000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（MCPクライアント未登録）"
+        }
+      }
+    },
+    "deepwiki": {
+      "description": "DeepWiki によるOSSリポジトリ知識（リモート）。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "remote",
+          "url": "https://mcp.deepwiki.com/mcp",
+          "oauth": false
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（MCPクライアント未登録）"
+        }
+      }
+    },
+    "exa": {
+      "description": "Exa Web検索・ページ取得（リモート）。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "remote",
+          "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（MCPクライアント未登録）"
+        }
+      }
+    },
+    "github": {
+      "description": "GitHub MCP（DSHプロファイルで使用。opencodeは gh CLI を使うため未登録）。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "supported": false,
+          "reason": "opencodeは gh CLI を直接使う方針のためMCP未登録"
+        },
+        "dsh": {
+          "serverName": "github",
+          "transport": "streamable-http",
+          "url": "https://api.githubcopilot.com/mcp/",
+          "headers": {
+            "X-MCP-Toolsets": "repos,pull_requests,issues",
+            "Authorization": "!!js `Bearer ${process.env.GITHUB_MCP_TOKEN}`"
+          },
+          "toolCallTimeoutMs": 60000,
+          "failOnStartupError": false,
+          "profiles": [
+            "web",
+            "agentrouter"
+          ]
+        }
+      }
+    },
+    "jarvis": {
+      "description": "jarvis ローカルMCP（DSH agentrouterプロファイルのみ）。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "supported": false,
+          "reason": "jarvisはDSH側のsystemdサービスに接続するためDSH専用"
+        },
+        "dsh": {
+          "serverName": "jarvis",
+          "transport": "streamable-http",
+          "url": "http://127.0.0.1:8082/mcp",
+          "toolCallTimeoutMs": 60000,
+          "failOnStartupError": false,
+          "profiles": [
+            "agentrouter"
+          ]
+        }
+      }
+    },
+    "local-llm": {
+      "description": "ローカルLLMゲートウェイ。既定は無効。",
+      "enabled": false,
+      "harnesses": {
+        "opencode": {
+          "type": "local",
+          "command": [
+            "opencode-local-llm"
+          ],
+          "timeout": {
+            "startup": 30000,
+            "catalog": 10000,
+            "execution": 60000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応"
+        }
+      }
+    },
+    "lsp": {
+      "description": "汎用LSP MCPサーバ。Serenaで代替済みのため既定は無効。",
+      "enabled": false,
+      "harnesses": {
+        "opencode": {
+          "type": "local",
+          "command": [
+            "npx",
+            "-y",
+            "lsp-mcp-server@latest"
+          ],
+          "environment": {
+            "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+          },
+          "cwd": "."
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応"
+        }
+      }
+    },
+    "memory": {
+      "description": "セッション横断の知識保存（stdio + ランチャー）。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "local",
+          "command": [
+            "node",
+            "{env:HOME}/.config/opencode/mcp-node-launcher.cjs",
+            "@modelcontextprotocol/server-memory/dist/index.js"
+          ],
+          "environment": {
+            "MEMORY_FILE_PATH": "{env:HOME}/.local/share/opencode/memory.jsonl",
+            "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+          },
+          "timeout": {
+            "startup": 10000,
+            "catalog": 5000,
+            "execution": 30000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（ランチャーがopencode設定ディレクトリ前提）"
+        }
+      }
+    },
+    "playwright": {
+      "description": "Playwright ブラウザ自動化・E2E。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "local",
+          "cwd": ".",
+          "command": [
+            "node",
+            "{env:HOME}/.config/opencode/playwright-mcp-launcher.cjs",
+            "--headless",
+            "--output-dir",
+            "{env:HOME}/.cache/playwright-mcp/output",
+            "--viewport-size",
+            "1280x720"
+          ],
+          "environment": {
+            "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+          },
+          "timeout": {
+            "startup": 60000,
+            "catalog": 30000,
+            "execution": 300000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（ランチャーがopencode設定ディレクトリ前提）"
+        }
+      }
+    },
+    "serena": {
+      "description": "LSPベースの意味解析・編集ツールキット。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "local",
+          "cwd": ".",
+          "command": [
+            "{env:HOME}/.local/bin/serena",
+            "start-mcp-server",
+            "--context",
+            "ide",
+            "--project-from-cwd",
+            "--enable-web-dashboard",
+            "false",
+            "--open-web-dashboard",
+            "false"
+          ],
+          "environment": {
+            "PYTHONUNBUFFERED": "1",
+            "ANDROID_APP_PATH": "{env:HOME}"
+          },
+          "timeout": {
+            "startup": 120000,
+            "catalog": 60000,
+            "execution": 180000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（Serena起動ランチャーがopencode前提）"
+        }
+      }
+    },
+    "sqlite": {
+      "description": "SQLite MCPサーバ。既定は無効。",
+      "enabled": false,
+      "harnesses": {
+        "opencode": {
+          "type": "local",
+          "cwd": ".",
+          "command": [
+            "npx",
+            "-y",
+            "@modelcontextprotocol/server-sqlite",
+            ".local/share/opencode/opencode.db"
+          ],
+          "timeout": {
+            "startup": 10000,
+            "catalog": 5000,
+            "execution": 30000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応"
+        }
+      }
+    },
+    "tavily-mcp": {
+      "description": "Tavily 深掘りリサーチ（リモート）。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "remote",
+          "url": "https://mcp.tavily.com/mcp/",
+          "headers": {
+            "DEFAULT_PARAMETERS": "{\"include_images\": false, \"max_results\": 8, \"search_depth\": \"basic\"}"
+          },
+          "timeout": {
+            "startup": 90000,
+            "catalog": 30000,
+            "execution": 120000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（MCPクライアント未登録）"
+        }
+      }
+    },
+    "timemcp": {
+      "description": "タイムゾーン対応の時刻ツール。",
+      "enabled": true,
+      "harnesses": {
+        "opencode": {
+          "type": "local",
+          "cwd": ".",
+          "command": [
+            "node",
+            "{env:HOME}/.config/opencode/time-mcp-launcher.cjs"
+          ],
+          "environment": {
+            "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+          },
+          "timeout": {
+            "startup": 15000,
+            "catalog": 10000,
+            "execution": 30000
+          }
+        },
+        "dsh": {
+          "supported": false,
+          "reason": "DSH未対応（ランチャーがopencode設定ディレクトリ前提）"
+        }
+      }
+    }
+  }
+}

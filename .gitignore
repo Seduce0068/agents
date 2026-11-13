@@ -18,6 +18,12 @@ skills/*
 .skill-lock.json
 .copilot-for-azure-skills-manifest.json
 
+# ツールのキャッシュ（Serena LSP のローカル状態）
+.serena/
+
 # バックアップ・一時ファイル
 *.bak
 *.bak-*
+
+# 生成物（正本と生成器から再生成できる）。差分検出は bin/check.sh で行う。
+generated/

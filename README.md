@@ -10,10 +10,54 @@
 |---|---|---|
 | `AGENTS.md` | 全ハーネス共通の指示（言語・安全・環境・検証・ブリッジ・文書形式・Rust・MCP原則） | DSH: 自動 / opencode: `instructions` 設定 |
 | `skills/<name>/SKILL.md` | Agent Skills 標準のスキル | DSH / opencode: 自動 |
+| `agents/<name>.md` | サブエージェント定義（中立形式: `name` / `description` / `access` + 本文） | 生成器経由で各ハーネスへ |
+| `mcp.json` | MCP サーバの単一ソース（ハーネス別のネイティブ表現を含む） | 検証・生成の基準 |
+| `harness/<name>/` | ハーネス固有の上書き（例: `opencode/agents.json`） | 生成器が読む |
+| `bin/agents-sync.rs` | サブエージェント定義の同期・検証 | 手動実行 |
+| `bin/mcp-sync.rs` | MCP 設定の同期・検証 | 手動実行 |
+| `bin/check.sh` | 全体のドリフト検査（読み取り専用） | 定期点検 |
+| `generated/` | 生成物（各ハーネスに貼る断片） | 参照用 |
 | `hooks/hooks.json` | Codex 系フック設定（ハーネス固有・参考） | Codex |
-| `.skill-lock.json` | 外部スキルの導入来歴（skills CLI 管理・非追跡） | skills CLI |
 
-`agents/`（サブエージェント定義）と `mcp.json`（MCP 単一ソース）は Phase 2/3 で追加する。
+## サブエージェントの同期
+
+正本は `agents/<name>.md`。frontmatter の `access` が権限クラス（`read-only` /
+`tests-only`）を表し、実際の権限表とモデルは `harness/opencode/agents.json` が持つ。
+
+```bash
+rust-script ~/.agents/bin/agents-sync.rs --list           # 一覧
+rust-script ~/.agents/bin/agents-sync.rs --check          # ドリフト検査（exit 1 で差分）
+rust-script ~/.agents/bin/agents-sync.rs --emit-opencode  # generated/ へ出力
+rust-script ~/.agents/bin/agents-sync.rs --apply          # opencode の agents/ を更新
+rust-script ~/.agents/bin/agents-sync.rs --emit-dsh       # DSH の agent-preset パッチを生成
+```
+
+DSH へ適用する場合は生成したパッチを検証してから使う。
+
+```bash
+DSH_HOME=~/.dsh dsh --profile agentrouter \
+  --patch ~/.agents/generated/dsh/agent-presets.patch.yml --dump-config
+# 問題なければ ~/.dsh-agentrouter/cordis.patch.yml の末尾へ追記するか、
+# ホーム直下 ~/.dsh-agentrouter/cordis.patch.yml に置く（全プロファイルへ適用）。
+```
+
+## MCP の単一ソース
+
+正本は `mcp.json` の `servers.<name>.harnesses.<harness>`。`{"supported": false, "reason": ...}`
+はそのハーネスで使わない（使えない）ことを意味する。
+
+```bash
+rust-script ~/.agents/bin/mcp-sync.rs --list        # 一覧
+rust-script ~/.agents/bin/mcp-sync.rs --check       # opencode.jsonc との一致検査
+rust-script ~/.agents/bin/mcp-sync.rs --check-dsh   # DSH プロファイルとの一致検査
+rust-script ~/.agents/bin/mcp-sync.rs --emit-opencode --emit-dsh
+```
+
+## 全体検査
+
+```bash
+~/.agents/bin/check.sh          # 正本・スキル形式・エージェント同期・MCP同期・markdownlint
+```
 
 ## 追跡方針
 
@@ -62,6 +106,14 @@ sys.exit(1 if bad else 0)
 PY
 ```
 
+## 残課題（Phase 4 候補）
+
+- DSH への agent-preset パッチ適用（`generated/dsh/agent-presets.patch.yml` を
+  `~/.dsh-agentrouter/cordis.patch.yml` へ反映）。モデル選択で使う場合は各 preset 行の
+  `tool-subagent` に `allowedAgentPresets` を追加する必要がある。
+- MCP の実設定を生成物から流し込む運用（現在は検証のみで、`opencode.jsonc` が正）。
+- `~/.dsh` と `~/.dsh-agentrouter` の 2 ホーム統合の判断。
+
 ## Phase 計画
 
 1. **Phase 1（2026-11-12 実施）**: スキルを `~/.agents/skills` に一本化、共通指示を
@@ -70,8 +122,10 @@ PY
 2. **Phase 2（2026-11-13 実施）**: 共通コア 28KB / opencode 固有 9.5KB に分割。ハーネス固有語は
    opencode 側へ移動し、チャット応答の frontmatter/markdownlint 適用を成果物限定に修正。
    markdownlint 0 issues。
-3. **Phase 3**: サブエージェント定義（`agents/`）の共有、MCP 単一ソース化（`mcp.json`）、
-   生成・検証スクリプト（`bin/`）の整備。
+3. **Phase 3（2026-11-14 実施）**: サブエージェント定義を `agents/` に中立形式で集約し、
+   `bin/agents-sync.rs` で opencode の agents を生成（往復一致を確認）。MCP を `mcp.json` に
+   単一ソース化し `bin/mcp-sync.rs` で両ハーネスを検証（15 サーバ）。DSH の agent-preset
+   パッチ生成も実装し、`--dump-config` で本文の完全一致を確認。`bin/check.sh` で統合検査。
 
 ## 変更履歴
 
@@ -81,3 +135,6 @@ PY
   壊れていた `skills/okf` を修復（SKILL.md + scripts を統合）。
 - 2026-11-13: Phase 2。`AGENTS.md` を共通コア（28KB）と opencode 固有（9.5KB）に分割。
   合計 37.5KB（旧 44.5KB）。
+- 2026-11-14: Phase 3。サブエージェント正本 `agents/`（5体）、MCP 単一ソース `mcp.json`
+  （15サーバ）、生成・検証 `bin/`（agents-sync.rs / mcp-sync.rs / check.sh）を追加。
+  opencode の agents を生成物へ置換（markdownlint 0 issues）。

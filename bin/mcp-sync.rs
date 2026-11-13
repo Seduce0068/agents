@@ -16,7 +16,6 @@
 //!   mcp-sync.rs --emit-dsh        DSH 用の MCP パッチ断片を generated/ へ出力
 //!   mcp-sync.rs --list            正本のサーバ一覧を表示
 
-use std::collections::BTreeMap;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -481,7 +480,3 @@ fn main() -> ExitCode {
         }
     }
 }
-
-/// 未使用警告を避けるためのダミー参照（BTreeMap は将来の拡張で使う）。
-#[allow(dead_code)]
-fn _unused(_: BTreeMap<String, String>) {}

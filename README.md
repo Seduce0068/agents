@@ -30,16 +30,32 @@ rust-script ~/.agents/bin/agents-sync.rs --check          # ドリフト検査�
 rust-script ~/.agents/bin/agents-sync.rs --emit-opencode  # generated/ へ出力
 rust-script ~/.agents/bin/agents-sync.rs --apply          # opencode の agents/ を更新
 rust-script ~/.agents/bin/agents-sync.rs --emit-dsh       # DSH の agent-preset パッチを生成
+rust-script ~/.agents/bin/agents-sync.rs --check-dsh      # DSH ホームへの適用状態を検査
 ```
 
-DSH へ適用する場合は生成したパッチを検証してから使う。
+### DSH への適用（2026-11-14 適用済み）
+
+ホーム直下の `$DSH_HOME/cordis.patch.yml` は**全プロファイルへ適用される**ユーザー層。
+`--emit-dsh` の出力をそのまま置く。
 
 ```bash
-DSH_HOME=~/.dsh dsh --profile agentrouter \
-  --patch ~/.agents/generated/dsh/agent-presets.patch.yml --dump-config
-# 問題なければ ~/.dsh-agentrouter/cordis.patch.yml の末尾へ追記するか、
-# ホーム直下 ~/.dsh-agentrouter/cordis.patch.yml に置く（全プロファイルへ適用）。
+cp ~/.agents/generated/dsh/agent-presets.patch.yml ~/.dsh-agentrouter/cordis.patch.yml
+cp ~/.agents/generated/dsh/agent-presets.patch.yml ~/.dsh/cordis.patch.yml
+DSH_HOME=~/.dsh dsh web --dump-config | grep -c 'id: preset-'   # 9（5体 + 標準4）
 ```
+
+サービスへ反映するには再起動する（自分のセッションが動いている側は避ける）。
+
+```bash
+systemctl --user restart dsh-web.service              # :3080
+systemctl --user restart dsh-web-agentrouter.service  # :3081（このGUI）
+```
+
+**プリセットの選択について**: 現在 `allowedAgentPresets` は未設定のため、DSH では
+プリセットは**登録されるが選択UIには既定の継承**となる。`spawn_teammate`（Agent Teams）は
+プリセットを選べない。`subagent` ツールで選択するには agent-team 系を無効化して
+`tool-subagent` を有効化する必要があり、これは Agent Teams を置き換える変更。
+生成物の末尾に手順をコメントとして同梱してある。
 
 ## MCP の単一ソース
 

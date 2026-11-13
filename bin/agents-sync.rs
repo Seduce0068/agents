@@ -205,8 +205,8 @@ fn render_dsh_presets(agents: &[Agent]) -> String {
                 out.push_str(&format!("                {line}\n"));
             }
         }
-        out.push_str("              complete: true\n");
-        out.push_str("              includeRuntimeContext: false\n");
+        // complete: true はシステムプロンプト全体（ツール案内を含む）を置換するため使わない。
+        // 役割は persona prefix として先頭に付与し、標準のツール案内と実行時コンテキストは維持する。
         out.push_str("          - id: agent-instructions\n");
         out.push_str("            name: '@deepseek-ai/dsh-agent-instructions'\n");
         out.push_str("            config:\n");
@@ -231,8 +231,36 @@ fn render_dsh_presets(agents: &[Agent]) -> String {
         out.push_str("              fetch: true\n");
         out.push_str("              searchTimeoutMs: 60000\n");
     }
+    out.push_str(HEADER_SELECTION_GUIDANCE);
+    for a in agents {
+        out.push_str(&format!("#       - {}\n", a.name));
+    }
+    out.push_str("#       - standard\n");
     out
 }
+
+/// プリセット選択を有効化する場合の手順（生成物にコメントとして付与する）。
+const HEADER_SELECTION_GUIDANCE: &str = concat!(
+    "\n# --- 選択を有効にする場合（任意・上級者向け） ---\n",
+    "# Agent Teams を有効にしたまま使う場合、spawn_teammate はプリセットを選べない。\n",
+    "# subagent ツールでプリセット選択を使うには、agent-team 系を無効化して\n",
+    "# tool-subagent を有効化し allowedAgentPresets を渡す（下記のコメントを外す）。\n",
+    "# 注意: これは Agent Teams を置き換える変更。現在の運用に合わせて判断すること。\n",
+    "#\n",
+    "# - id: tool-agent-team\n",
+    "#   disabled: true\n",
+    "# - id: agent-team\n",
+    "#   disabled: true\n",
+    "# - id: ui-agent-team\n",
+    "#   disabled: true\n",
+    "# - id: tool-subagent\n",
+    "#   config:\n",
+    "#     provider: spawn\n",
+    "#     toolName: subagent\n",
+    "#     modelSelection: true\n",
+    "#     modelDiscovery: true\n",
+    "#     allowedAgentPresets:\n",
+);
 
 fn write_if_changed(path: &Path, content: &str) -> Result<bool, String> {
     if let Ok(existing) = fs::read_to_string(path) {
@@ -270,6 +298,38 @@ fn main() -> ExitCode {
         for a in &agents {
             println!("{:<20} access={:<12} {}", a.name, a.access, a.description);
         }
+        return ExitCode::SUCCESS;
+    }
+
+    if mode == "--check-dsh" {
+        // ホーム直下 $DSH_HOME/cordis.patch.yml が生成物と一致するかを検査する。
+        let expected = render_dsh_presets(&agents);
+        let mut drift = false;
+        for home_env in ["DSH_HOME", "DSH_AGENTROUTER_HOME"] {
+            let _ = home_env;
+        }
+        let homes = [home().join(".dsh"), home().join(".dsh-agentrouter")];
+        for h in &homes {
+            let path = h.join("cordis.patch.yml");
+            match fs::read_to_string(&path) {
+                Ok(existing) if existing == expected => {
+                    println!("OK   {}", path.display());
+                }
+                Ok(_) => {
+                    println!("drift: {} (生成物と不一致)", path.display());
+                    drift = true;
+                }
+                Err(_) => {
+                    println!("未適用: {} （--emit-dsh の出力を配置してください）", path.display());
+                    drift = true;
+                }
+            }
+        }
+        if drift {
+            eprintln!("agents-sync: DSH ホームのパッチが未適用または不一致です。");
+            return ExitCode::FAILURE;
+        }
+        println!("agents-sync: DSH ホームのプリセットは同期済み");
         return ExitCode::SUCCESS;
     }
 

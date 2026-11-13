@@ -62,7 +62,17 @@ else
 fi
 
 say
-say "=== 4. MCP 単一ソースの同期（opencode） ==="
+say "=== 4. DSH ホームのプリセット適用状態 ==="
+if rust-script "$AGENTS_HOME/bin/agents-sync.rs" --check-dsh >/tmp/agents-dsh.log 2>&1; then
+  say "  OK   $(tail -1 /tmp/agents-dsh.log)"
+else
+  say "  NG   未適用または不一致:"
+  grep -E '^(OK|drift|未適用|agents-sync)' /tmp/agents-dsh.log | sed 's/^/       /'
+  fail=1
+fi
+
+say
+say "=== 5. MCP 単一ソースの同期（opencode） ==="
 if rust-script "$AGENTS_HOME/bin/mcp-sync.rs" --check >/tmp/mcp-check.log 2>&1; then
   say "  OK   $(tail -1 /tmp/mcp-check.log)"
 else
@@ -72,7 +82,7 @@ else
 fi
 
 say
-say "=== 5. MCP 単一ソースの同期（DSH プロファイル） ==="
+say "=== 6. MCP 単一ソースの同期（DSH プロファイル） ==="
 if rust-script "$AGENTS_HOME/bin/mcp-sync.rs" --check-dsh >/tmp/mcp-dsh.log 2>&1; then
   say "  OK   $(tail -1 /tmp/mcp-dsh.log)"
 else
@@ -82,7 +92,7 @@ else
 fi
 
 say
-say "=== 6. 指示ファイルの markdownlint ==="
+say "=== 7. 指示ファイルの markdownlint ==="
 if command -v markdownlint-cli2 >/dev/null 2>&1; then
   CFG="$HOME/.config/opencode/.markdownlint-cli2.jsonc"
   if [ -f "$CFG" ]; then

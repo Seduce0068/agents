@@ -67,7 +67,12 @@ rust-script ~/.agents/bin/mcp-sync.rs --list        # 一覧
 rust-script ~/.agents/bin/mcp-sync.rs --check       # opencode.jsonc との一致検査
 rust-script ~/.agents/bin/mcp-sync.rs --check-dsh   # DSH プロファイルとの一致検査
 rust-script ~/.agents/bin/mcp-sync.rs --emit-opencode --emit-dsh
+rust-script ~/.agents/bin/mcp-sync.rs --apply       # opencode.jsonc の mcp ブロックを置換
 ```
+
+`--apply` は `opencode.jsonc` の `mcp` ブロック**だけ**を置換し、他の記述とコメントは
+保持する。書き込み前に生成結果を JSON として構文検証し、不正なら中止する（fail closed）。
+DSH 側は `--emit-dsh` の出力を各プロファイルの `cordis.patch.yml` へ追記する。
 
 ## 全体検査
 

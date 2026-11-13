@@ -123,6 +123,8 @@ fn strip_jsonc(src: &str) -> String {
 struct Server {
     name: String,
     description: String,
+    /// 正本の `$comment`（元設定の詳細コメント。生成時にそのまま出力する）。
+    comment: Option<String>,
     enabled: bool,
     opencode: Option<serde_json::Value>,
     opencode_unsupported: Option<String>,
@@ -161,6 +163,12 @@ fn load_servers() -> Result<Vec<Server>, String> {
                 .unwrap_or("")
                 .to_string(),
             enabled: entry.get("enabled").and_then(|v| v.as_bool()).unwrap_or(true),
+            comment: entry.get("$comment").and_then(|c| c.as_array()).map(|a| {
+                a.iter()
+                    .filter_map(|x| x.as_str())
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            }),
             opencode,
             opencode_unsupported,
             dsh,
@@ -309,22 +317,82 @@ fn check_dsh(servers: &[Server], profiles: &[(&str, PathBuf)]) -> Result<usize, 
     Ok(problems)
 }
 
-fn emit_opencode(servers: &[Server]) -> String {
-    let mut map = serde_json::Map::new();
+/// opencode.jsonc の `mcp` ブロック全体を生成する（コメント付き・インデント付き）。
+fn render_opencode_block(servers: &[Server]) -> String {
+    let mut out = String::new();
+    out.push_str("  \"mcp\": {\n");
+    out.push_str("    // このブロックは ~/.agents/bin/mcp-sync.rs --apply が生成する。直接編集しない。\n");
+    out.push_str("    // 正本: ~/.agents/mcp.json\n");
+    out.push_str("    \"servers\": {\n");
+    let last_enabled = servers
+        .iter()
+        .filter(|s| s.opencode.is_some())
+        .map(|s| s.name.clone())
+        .next_back();
     for s in servers {
-        if let Some(v) = &s.opencode {
-            let mut entry = normalize_opencode(v);
-            if let Some(obj) = entry.as_object_mut() {
-                obj.insert("disabled".into(), serde_json::Value::Bool(!s.enabled));
+        let Some(v) = &s.opencode else { continue };
+        let is_last = last_enabled.as_deref() == Some(s.name.as_str());
+        // 説明コメント（正本の $comment があればそれを使う）
+        let comment = s
+            .comment
+            .clone()
+            .unwrap_or_else(|| s.description.clone());
+        // 正本の行構造を尊重する（改行は保持、長い行だけ折り返す）
+        for logical in comment.split('\n') {
+            for line in wrap_comment(logical, 86) {
+                out.push_str(&format!("      // {line}\n"));
             }
-            map.insert(s.name.clone(), entry);
+        }
+        // enabled から disabled を導出して注入する（正本は enabled のみを持つ）
+        let mut entry = normalize_opencode(v);
+        if let Some(obj) = entry.as_object_mut() {
+            obj.insert("disabled".into(), serde_json::Value::Bool(!s.enabled));
+        }
+        out.push_str(&format!(
+            "      \"{}\": {}{}\n",
+            s.name,
+            render_json_value(&entry),
+            if is_last { "" } else { "," }
+        ));
+    }
+    out.push_str("    }\n");
+    out.push_str("  }");
+    out
+}
+
+/// 長いコメントを折り返す（日本語幅は概算2として数える）。
+fn wrap_comment(text: &str, width: usize) -> Vec<String> {
+    let mut lines = Vec::new();
+    let mut current = String::new();
+    let mut w = 0usize;
+    for ch in text.chars() {
+        let cw = if ch.is_ascii() { 1 } else { 2 };
+        if w + cw > width && !current.is_empty() {
+            lines.push(current.clone());
+            current.clear();
+            w = 0;
+        }
+        current.push(ch);
+        w += cw;
+    }
+    if !current.is_empty() {
+        lines.push(current);
+    }
+    lines
+}
+
+/// JSON 値を 6 スペース基準で整形する（サーバ本体）。
+fn render_json_value(v: &serde_json::Value) -> String {
+    let pretty = serde_json::to_string_pretty(v).unwrap_or_default();
+    let mut out = String::new();
+    for (i, line) in pretty.lines().enumerate() {
+        if i == 0 {
+            out.push_str(line);
+        } else {
+            out.push_str(&format!("\n      {line}"));
         }
     }
-    let doc = serde_json::json!({
-        "$comment": "~/.agents/bin/mcp-sync.rs --emit-opencode の生成物。正本は ~/.agents/mcp.json。opencode.jsonc の mcp.servers に貼る。",
-        "servers": serde_json::Value::Object(map)
-    });
-    serde_json::to_string_pretty(&doc).unwrap_or_default() + "\n"
+    out
 }
 
 fn emit_dsh(servers: &[Server]) -> String {
@@ -364,6 +432,49 @@ fn emit_dsh(servers: &[Server]) -> String {
         out.push('\n');
     }
     out
+}
+
+/// opencode.jsonc の `mcp` ブロックだけを生成物で置換する。他の記述は保持する。
+fn apply_opencode(_servers: &[Server], jsonc_path: &Path) -> Result<bool, String> {
+    let src = fs::read_to_string(jsonc_path).map_err(|e| format!("{}: {e}", jsonc_path.display()))?;
+    let lines: Vec<&str> = src.split('\n').collect();
+    let start = lines
+        .iter()
+        .position(|l| l.trim() == "\"mcp\": {")
+        .ok_or_else(|| "opencode.jsonc に \"mcp\": { が見つかりません".to_string())?;
+    let mut depth = 0i32;
+    let mut end = None;
+    for (i, line) in lines.iter().enumerate().skip(start) {
+        depth += line.matches('{').count() as i32 - line.matches('}').count() as i32;
+        if i > start && depth == 0 {
+            end = Some(i);
+            break;
+        }
+    }
+    let end = end.ok_or_else(|| "mcp ブロックの終端が見つかりません".to_string())?;
+    let replacement = render_opencode_block(_servers);
+    let mut out_lines: Vec<String> = Vec::new();
+    out_lines.extend(lines[..start].iter().map(|s| s.to_string()));
+    out_lines.extend(replacement.split('\n').map(|s| s.to_string()));
+    // 元の末尾がカンマ付きだった場合は合わせる
+    let original_last = lines[end].trim_end();
+    if original_last.ends_with(',') {
+        if let Some(last) = out_lines.last_mut() {
+            if !last.ends_with(',') {
+                last.push(',');
+            }
+        }
+    }
+    out_lines.extend(lines[end + 1..].iter().map(|s| s.to_string()));
+    let updated = out_lines.join("\n");
+    if updated == src {
+        return Ok(false);
+    }
+    // 置換前に構文検証（素の JSON として解釈できるか）
+    serde_json::from_str::<serde_json::Value>(&strip_jsonc(&updated))
+        .map_err(|e| format!("生成した JSONC が不正なため書き込みを中止: {e}"))?;
+    fs::write(jsonc_path, updated).map_err(|e| format!("{}: {e}", jsonc_path.display()))?;
+    Ok(true)
 }
 
 fn truncate(s: &str, n: usize) -> String {
@@ -414,9 +525,26 @@ fn main() -> ExitCode {
         }
         "--emit-opencode" => {
             let path = agents_root().join("generated/opencode/mcp.servers.json");
-            match write_if_changed(&path, &emit_opencode(&servers)) {
+            match write_if_changed(&path, &render_opencode_block(&servers)) {
                 Ok(c) => {
                     println!("{}: {}", if c { "更新" } else { "変更なし" }, path.display());
+                    ExitCode::SUCCESS
+                }
+                Err(e) => {
+                    eprintln!("mcp-sync: {e}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
+        "--apply" => {
+            let jsonc = home().join(".config/opencode/opencode.jsonc");
+            match apply_opencode(&servers, &jsonc) {
+                Ok(true) => {
+                    println!("更新 {}", jsonc.display());
+                    ExitCode::SUCCESS
+                }
+                Ok(false) => {
+                    println!("変更なし {}", jsonc.display());
                     ExitCode::SUCCESS
                 }
                 Err(e) => {

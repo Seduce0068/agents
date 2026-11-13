@@ -22,7 +22,11 @@
           "supported": false,
           "reason": "DSH未対応（専用クライアント実装が必要）"
         }
-      }
+      },
+      "$comment": [
+        "agentrouter.to is a separate capability gateway (AGENTIC_API_KEY, aak_ tokens),",
+        "not the agentrouter.org model API. Enable only for email/phone/etc. tools."
+      ]
     },
     "chrome-devtools": {
       "description": "Chrome DevTools プロトコル経由のブラウザ診断。",
@@ -52,7 +56,13 @@
           "supported": false,
           "reason": "DSH未対応（ランチャーがopencode設定ディレクトリ前提）"
         }
-      }
+      },
+      "$comment": [
+        "Termux/Android: Playwright 同様、システムの Chromium を明示して",
+        "ヘッドレス起動する。Android では sandbox と /dev/shm が使えないため",
+        "--no-sandbox と --disable-dev-shm-usage をランチャーが付与する。",
+        "Kubuntu では Chrome の自動検出に任せる。"
+      ]
     },
     "context7": {
       "description": "ライブラリ/CLI/クラウド公式ドキュメント（リモート）。",
@@ -188,7 +198,11 @@
           "supported": false,
           "reason": "DSH未対応"
         }
-      }
+      },
+      "$comment": [
+        "Superseded by Serena below. Kept as a disabled fallback: flip disabled to false",
+        "if Serena's language backend does not cover a target language."
+      ]
     },
     "memory": {
       "description": "セッション横断の知識保存（stdio + ランチャー）。",
@@ -246,7 +260,12 @@
           "supported": false,
           "reason": "DSH未対応（ランチャーがopencode設定ディレクトリ前提）"
         }
-      }
+      },
+      "$comment": [
+        "Termux/Android: playwright-core は process.platform === \"android\" を",
+        "未サポートとして読み込み時に例外を投げる。ランチャーで linux として",
+        "提示し、システムの Chromium を --executable-path で起動する。"
+      ]
     },
     "serena": {
       "description": "LSPベースの意味解析・編集ツールキット。",
@@ -280,7 +299,15 @@
           "supported": false,
           "reason": "DSH未対応（Serena起動ランチャーがopencode前提）"
         }
-      }
+      },
+      "$comment": [
+        "Serena: LSP-based semantic code toolkit, positioned as the replacement for the",
+        "standalone lsp MCP above. Serena v2 defaults to the REPL agent interface, which",
+        "exposes only initial_instructions, activate_project, and serena_repl.",
+        "--project-from-cwd auto-activates the nearest git/.serena project.",
+        "The dashboard is disabled to avoid browser popups and port contention when",
+        "opencode spawns one Serena instance per session."
+      ]
     },
     "sqlite": {
       "description": "SQLite MCPサーバ。既定は無効。",
@@ -353,7 +380,13 @@
           "supported": false,
           "reason": "DSH未対応（ランチャーがopencode設定ディレクトリ前提）"
         }
-      }
+      },
+      "$comment": [
+        "time-mcp: timezone-aware clock tools (current_time, convert_time, etc.).",
+        "Requires: npm install -g time-mcp",
+        "The upstream entrypoint prints a startup banner to stdout; this launcher",
+        "forwards only JSON-RPC lines so the stdio transport stays clean."
+      ]
     }
   }
 }

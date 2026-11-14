@@ -417,6 +417,21 @@ fn emit_dsh(servers: &[Server]) -> String {
         if let Some(command) = v.get("command").and_then(|x| x.as_str()) {
             out.push_str(&format!("        command: {command}\n"));
         }
+        if let Some(args) = v.get("args").and_then(|x| x.as_array()) {
+            out.push_str("        args:\n");
+            for arg in args {
+                out.push_str(&format!("          - {}\n", arg.as_str().unwrap_or("")));
+            }
+        }
+        if let Some(env) = v.get("env").and_then(|x| x.as_object()) {
+            out.push_str("        env:\n");
+            for (k, val) in env {
+                out.push_str(&format!("          {k}: {}\n", val.as_str().unwrap_or("")));
+            }
+        }
+        if let Some(cwd) = v.get("cwd").and_then(|x| x.as_str()) {
+            out.push_str(&format!("        cwd: {cwd}\n"));
+        }
         if let Some(headers) = v.get("headers").and_then(|x| x.as_object()) {
             out.push_str("        headers:\n");
             for (k, val) in headers {

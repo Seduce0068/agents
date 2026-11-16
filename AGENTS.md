@@ -31,7 +31,7 @@
   - 保守性: メンテナの在籍、最終リリース日、アーカイブ・非推奨の有無。
   - 採用可否: ライセンス互換、依存サイズ、既知脆弱性（GitHub Advisory / RUSTSEC）、要件一致。
 - 既存で要件を満たせる場合はラッパー・設定・委譲で再利用し、同等機能を自作しない。
-- 依存追加は最小限の方針とし、事前にユーザーの承認を得る。
+- 依存追加は最小限の方針とし、十分に調査・吟味した上であれば事前承認は不要とする。
 - 自作する場合は、調査した候補と不採用理由（機能不足・保守停止・ライセンス非互換・依存過大・要件不一致）を PR本文・ADR・コードコメントのいずれかに記録する。
 - 調査は利用可能な検索ツール（Web検索、MCP、`gh search repos` など）を使う。調査結果は設計判断の材料であり、compile/lint/test などの決定論的検証を代替しない。
 - 調査を必須とするのは、新規依存・外部サービス・公開API・新機能（概ね50行超）・自作ツール。1回限りのスクリプト、テストヘルパー、既存ツールの設定は省略してよい。
@@ -64,6 +64,8 @@
 - 秘密情報を含む差分はコミットしない。`git add` の前に差分を確認する。
 - 破壊的操作（force push、履歴改変、タグの付け替え）は委任の対象外とし、事前にユーザー確認を得る。
 - push先は追跡ブランチとし、upstream 未設定なら設定する。
+- 新規リポジトリの作成やデフォルトブランチの設定では `master` を既定とする。
+- 個人リポジトリのデフォルトライセンスは `AGPL-3.0-or-later` とする。
 
 ## 5. 個人リポジトリの CI 方針
 
@@ -167,10 +169,11 @@
 - PC: Kubuntu 2026.04 LTS（Ryzen 5 3600 / DDR4 64GB /
   Samsung 970 EVO 1TB SSD + HDD 1TB + USBポータブルSSD / GeForce GTX 1660 SUPER /
   ASUS PRIME B450-PLUS / G-GEAR 69JD）。ブラウザは Microsoft Edge Stable。
-- スマートフォン: Galaxy S26 Ultra（16GB RAM / 1TB、SIMフリー、SM-S948Q）、Android 16、Microsoft Edge Beta。回線は日本通信「合理的みんなのプラン」（20GB）。
+- スマートフォン: Galaxy S26 Ultra（16GB RAM / 1TB、SIMフリー、SM-S948Q）、Android 16、Microsoft Edge（Stable）。回線は日本通信「合理的みんなのプラン」（20GB）。
 - 自宅回線: ドコモ HOME 5G（ルーター HR02）。
 - その他: ユーザスクリプトマネージャーは Violentmonkey。
-- Windows向け手順ではなく、Linux/Kubuntu向けの手順を提供する。
+- 開発ツール: [mise](https://mise.jdx.dev/) をインストール済み。
+- Windows向け手順ではなく、Linux/Kubuntu向けの手順を提供する।
 
 ### ブラウザ対応対象
 

@@ -1,7 +1,7 @@
 ---
 name: doc-create
 description: >-
-  仕様書・設計書・運用ドキュメントをテンプレートから生成し、レビューサイクルに乗せる。ADR/RFC/Runbook/Architecture Decision 等の標準フォーマットを提供。
+  仕様書・設計書・運用ドキュメントをテンプレートから生成し、レビューサイクルに乗せる。ADR/RFC/Runbook/Architecture Decision 等の標準フォーマットを提供。Use when ADR、RFC、Runbook、仕様書の作成や構成設計を依頼されたとき。
 ---
 
 ## 目的

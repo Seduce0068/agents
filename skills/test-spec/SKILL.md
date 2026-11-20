@@ -1,7 +1,7 @@
 ---
 name: test-spec
 description: >-
-  テスト仕様書・テストコード・エビデンスの標準化・生成・検証。ISO/IEC/IEEE 29119 準拠の構造に OWASP・SP 800・Common Criteria のカタログを対応させる。
+  テスト仕様書・テストコード・エビデンスの標準化・生成・検証。ISO/IEC/IEEE 29119 準拠の構造に OWASP・SP 800・Common Criteria のカタログを対応させる。Use when テスト設計やテスト仕様書の作成を依頼されたとき。
 ---
 
 ## 目的

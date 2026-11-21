@@ -33,7 +33,7 @@
 - 既存で要件を満たせる場合はラッパー・設定・委譲で再利用し、同等機能を自作しない。
 - 依存追加は最小限の方針とし、十分に調査・吟味した上であれば事前承認は不要とする。
 - 自作する場合は、調査した候補と不採用理由（機能不足・保守停止・ライセンス非互換・依存過大・要件不一致）を PR本文・ADR・コードコメントのいずれかに記録する。
-- 調査は利用可能な検索ツール（Web検索、MCP、`gh search repos` など）を使う。ただし DeepSeek API をバックエンドにする Web 検索は使わない（§16 参照）。調査結果は設計判断の材料であり、compile/lint/test などの決定論的検証を代替しない。
+- 調査は利用可能な検索ツール（Web検索、MCP、`gh search repos` など）を使う。ただし DeepSeek API をバックエンドにする Web 検索と `rustxng` MCP は使わない（§16 参照）。調査結果は設計判断の材料であり、compile/lint/test などの決定論的検証を代替しない。
 - 調査を必須とするのは、新規依存・外部サービス・公開API・新機能（概ね50行超）・自作ツール。1回限りのスクリプト、テストヘルパー、既存ツールの設定は省略してよい。
 
 ## 3. ソフトウェア変更の標準検証ループ
@@ -329,4 +329,4 @@
 - 破壊的操作（履歴破棄、強制削除、上書き、外部送信・課金）は事前にユーザー確認を得る。読み取り系は確認不要。
 - 秘密情報（トークン、鍵、`.env`、非公開コード）をクエリや本文に含めない。
 - 新しいMCPサーバの追加・有効化・`disabled` の解除は、ユーザーの承認を得てから行う。能力を減らす変更は確認不要。
-- **DeepSeek API は Web 検索バックエンドとして使わない**: `web_search` ツールはモデルプロバイダの base URL から検索エンドポイント（`https://api.deepseek.com/v1/tools/search` 等）を導出するため、呼ぶと DeepSeek API になる。外部検索が必要な場合は `mcp__rustxng__search` / `mcp__rustxng__read_page`、`mcp__github__search_*`、`web_fetch` を使う。エンドポイント設定（`web-deepseek-api.searchBaseURL` 等）の変更はユーザーが行うもので、エージェントは変更しない。
+- **DeepSeek API と RustXNG は Web 検索バックエンドとして使わない**: `web_search` ツールはモデルプロバイダの base URL から検索エンドポイント（`https://api.deepseek.com/v1/tools/search` 等）を導出するため、呼ぶと DeepSeek API になる。また `rustxng` MCP（`mcp__rustxng__search` / `mcp__rustxng__read_page`）の利用は 2026-11-21 のユーザー指示により禁止する。MCP サーバの登録自体は残してよいが、エージェントは呼び出さない。外部検索が必要な場合は `mcp__github__search_*`、`web_fetch` を使う。エンドポイント設定（`web-deepseek-api.searchBaseURL` 等）の変更はユーザーが行うもので、エージェントは変更しない。

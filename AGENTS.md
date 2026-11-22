@@ -110,6 +110,14 @@
 - 全スキルを常時適用しない。progressive disclosure を保ち、スキル間の指示衝突を避けるため、そのタスクに必要なスキルだけを起動する。
 - 使い漏れを減らすため、`description` に「Use when ...」形の起動トリガーを維持し、定期的に監査する。監査結果は `passkey-gateway/docs/` に残す。
 
+### ゴールのラウンド上限（DSH）
+
+- `create_goal` では `max_goal_rounds` を**明示しない**。省略して deployment の `defaultMaxGoalRounds`（現在 5000）を使う。
+- `update_goal` の `edit` でも `max_goal_rounds` を変更しない。ユーザーが明示的に「ラウンド上限を N に変更して」と求めた場合のみ例外とする。
+- 明示値は deployment デフォルトを上書きするため、エージェントが自主的に小さい値（例: 30）を指定すると、意図せず早期に上限へ達して自動継続が止まる。
+- このルールは `swarm-*` スキルに限らず、すべてのセッション・すべてのスキルで守る。
+- R1〜R6 はスキル内のプロトコル上のラウンドであり、`max_goal_rounds`（ゴールの自動継続ラウンド数）と 1:1 で対応しない。
+
 ### 主要スキルと適用の目安
 
 `~/.agents/skills` の個人スキル。表に無いスキルも同様に扱う。
@@ -195,6 +203,21 @@
 - その他: ユーザスクリプトマネージャーは Violentmonkey。
 - 開発ツール: [mise](https://mise.jdx.dev/) をインストール済み。
 - Windows向け手順ではなく、Linux/Kubuntu向けの手順を提供する।
+
+### 権限昇格とコンテナランタイム
+
+- `sudo` はパスキー／顔認証による**対話承認**で利用できる。`sudo -n`（非対話）
+  が失敗しても「sudo は使えない」と断定しない。権限が必要な操作では
+  ユーザーに承認を促す形で `sudo` を実行する。
+- コンテナ操作はまず `kiri`（`/usr/bin/kiri`、Rust 製の Docker 互換 CLI）を
+  確認する。Docker CLI も導入済みだが、セッションによって `docker` グループが
+  反映されず `permission denied` になることがある。その場合は再ログイン、
+  `newgrp docker`、または上記の対話 `sudo` を使う。
+- `kiri daemon --help` は終了せずハングすることがあるため、ヘルプ確認では
+  `timeout` を付ける。
+- 2026-11-22 時点で `kubectl` / `kind` / `k3d` は `~/.local/bin` に導入済み。
+  バージョンは変わり得るため、必要なら `kubectl version --client`、
+  `kind version`、`k3d version` で確認する。
 
 ### ブラウザ対応対象
 

@@ -244,6 +244,25 @@
 - 確認結果は Runtime Proof として扱い、過去のログや記憶より優先する。
 - GUIアプリの動作確認は、ユーザーに委ねずエージェント自身で検証する。Xwayland(X11)アプリは `xwininfo -root -tree` / `xprop`、Waylandネイティブは `kdotool` 等で確認する。取得できない場合は理由を添えてユーザーに確認を依頼する。
 
+### GUIアプリのビルド成果物をアプリケーションメニューへ配置
+
+- `cargo build --release` だけではバイナリが `target/release/` に生成されるだけで、
+  KDE のアプリケーションメニューには登録されない。ビルド後に成果物を使える状態にする
+  には、リポジトリが用意しているローカルインストールスクリプトを実行する。
+- GPUI Task Manager の場合は `bash scripts/install-local.sh` を使う。これは root 不要で、
+  `cargo build --release` → `~/.local/bin/gpui-task-manager` →
+  `~/.local/share/applications/gpui-task-manager.desktop` →
+  `~/.local/share/icons/hicolor/` へのアイコン配置 →
+  `update-desktop-database` / `kbuildsycoca6` によるメニューキャッシュ更新を一括で行う。
+  再ビルド後も同じコマンドを再実行すれば、バイナリとメニューが最新化される。
+  既存バイナリを再利用する場合は `--skip-build` を付ける。
+- 配布用 Debian パッケージは `packaging/linux/build-deb.sh` が作成する。
+  こちらは `/usr/bin` と `/usr/share/applications` 配下へインストールされるため、
+  開発中の反復には `scripts/install-local.sh`、配布には `.deb` を使い分ける。
+- エージェントがビルド成果物を「使える状態にした」と報告する前に、
+  ランチャーエントリが実際に存在すること（`desktop-file-validate` と
+  `kbuildsycoca6` 後のメニュー確認）を Runtime Proof として確認する。
+
 ### Edge/Chromium 拡張機能のPWA化（タスクバー独立表示）
 
 - 拡張機能（`extension://` や `chrome-extension://`）を `--app` で起動する際、

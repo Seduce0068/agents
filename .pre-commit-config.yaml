@@ -1,0 +1,11 @@
+# Betterleaks を pre-commit 主軸で実行する。
+# ローカルフックは SKIP=betterleaks / git commit --no-verify で回避できるため、
+# CI でも最終ゲートとしてスキャンを併設する（.github/workflows/secret-scan.yml）。
+# Gitleaks 開発陣の後継ツール。main は v2 開発中のため v1 タグにピン留めする。
+repos:
+  - repo: https://github.com/betterleaks/betterleaks
+    rev: v1.10.1
+    hooks:
+      - id: betterleaks
+        name: Betterleaks (staged files)
+        stages: [pre-commit]

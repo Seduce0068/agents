@@ -67,13 +67,13 @@
 - 新規リポジトリの作成やデフォルトブランチの設定では `master` を既定とする。
 - 個人リポジトリのデフォルトライセンスは `AGPL-3.0-or-later` とする。
 
-### シークレットスキャン（Gitleaks 等）
+### シークレットスキャン（Betterleaks）
 
-- Gitleaks を導入する場合は **pre-commit を主軸**にする。pre-push は補助として追加してもよいが、単独運用は避ける。シークレットがコミット履歴に入る前に検出・ブロックできるため。
+- Betterleaks を導入する場合は **pre-commit を主軸**にする。pre-push は補助として追加してもよいが、単独運用は避ける。シークレットがコミット履歴に入る前に検出・ブロックできるため。
 - pre-push 単独では検出時点で既にコミット履歴に残っており、完全な削除には `git rebase` / `git filter-repo` 等の履歴書き換えが必要になる。公開後は共同作業者への影響とキーのローテーションが発生する。
-- ローカルフックは `SKIP=gitleaks` / `git commit --no-verify` で回避できるため、**CI でのスキャンを最終ゲートとして必ず併設**する。
-- 設定例（[公式 README](https://github.com/gitleaks/gitleaks/blob/master/README.md) 準拠）: `.pre-commit-config.yaml` に `repo: https://github.com/gitleaks/gitleaks` と `id: gitleaks` を置き、`pre-commit install` と `pre-commit autoupdate` で運用する。
-- Gitleaks は feature complete（今後はセキュリティパッチのみ、開発の焦点は [Betterleaks](https://github.com/betterleaks/betterleaks) へ移行）。新規選定時はこの旨も考慮する。
+- ローカルフックは `SKIP=betterleaks` / `git commit --no-verify` で回避できるため、**CI でのスキャンを最終ゲートとして必ず併設**する。
+- 設定例（[v1.x 公式 README](https://github.com/betterleaks/betterleaks/blob/v1.x/README.md) 準拠）: `.pre-commit-config.yaml` に `repo: https://github.com/betterleaks/betterleaks` と `id: betterleaks` を置き、`pre-commit install` と `pre-commit autoupdate` で運用する。2026-11-22 時点の安定版は v1.10.1 で、`main` ブランチは v2 開発中のため `rev` は v1 タグにピン留めする。
+- Betterleaks は Gitleaks の開発陣（原作者を含む）が保守する後継ツール。詳細は[公式リポジトリ](https://github.com/betterleaks/betterleaks)を参照する。
 
 ## 5. 個人リポジトリの CI 方針
 

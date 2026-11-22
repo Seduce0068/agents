@@ -17,7 +17,7 @@ description: >-
 | テスト | `npm test` / `pytest` / `cargo test` | **Auto-Reject** | リスク階層閾値 (`references/test/profiles/*.yaml` の `risk_tiers`)、flaky 0 |
 | ビルド | `npm run build` / `cargo build --release` | **Auto-Reject** | artifact 生成必須 |
 | 依存脆弱性 | `npm audit` / `cargo audit` / `pip-audit` | **Auto-Reject(High+)** | CVE High/Critical 0 |
-| 秘密検出 | `gitleaks` / `trufflehog` | **Auto-Reject** | 真陽性 0 件 |
+| 秘密検出 | `betterleaks` / `trufflehog` | **Auto-Reject** | 真陽性 0 件 |
 | 循環依存 | `madge --circular` / `cargo depgraph` | **Auto-Reject** | 循環 0 件 |
 | 秘密情報ハードコード | `grep -rE "(api[_-]?key|secret|token|password)\s*="` | **Auto-Reject** | マッチ 0 件 |
 
@@ -320,7 +320,7 @@ FROM reviews GROUP BY author;
 
 ## 権限
 - `read`, `glob`, `grep` 全許可
-- `shell`: CIツール実行パターンのみ許可（`npm run *`, `cargo *`, `pytest`, `gitleaks`, `trufflehog`, `madge`, `gh`, `glab` 等）
+- `shell`: CIツール実行パターンのみ許可（`npm run *`, `cargo *`, `pytest`, `betterleaks`, `trufflehog`, `madge`, `gh`, `glab` 等）
 - `write`: レポート・メトリクスDB出力先のみ
 - `subagent`: `cross-review` 実行のため許可
 - `webfetch`: CI/CD API 呼出しのため許可（GitHub/GitLab API）

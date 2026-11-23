@@ -1,28 +1,5 @@
-# 外部から導入したスキル（.skill-lock.json / Codex・Copilot バンドル管理）は追跡しない。
-# 個人作成のスキルだけを下の whitelist で追跡する。
-skills/*
-!skills/ai-selection/
-!skills/cross-review/
-!skills/doc-create/
-!skills/gemini-doc/
-!skills/okf/
-!skills/opencode-environment-report/
-!skills/policy-law/
-!skills/review-flow/
-!skills/swarm-coding/
-!skills/swarm-limited/
-!skills/swarm-project-review/
-!skills/swarm-research/
-!skills/swarm-todo-discovery/
-!skills/swarm-unlimited/
-!skills/tech-selection/
-!skills/test-spec/
-!skills/typst/
-!skills/userscript-validator/
-
-# インストール来歴（外部ツールが更新する）
-.skill-lock.json
-.copilot-for-azure-skills-manifest.json
+# 全スキルを Git で追跡する。外部導入スキルも実ファイルを版管理し、
+# 出典・ハッシュは .skill-lock.json / .copilot-for-azure-skills-manifest.json に記録する。
 
 # ツールのキャッシュ（Serena LSP のローカル状態）
 .serena/

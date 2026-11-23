@@ -1,0 +1,35 @@
+title = "betterleaks config for agents"
+
+# Generated caches are not source files.
+prefilter = '''
+filter.matchesAny(attributes["path"], [`(?:^|/)generated/`, `(?:^|/)\.serena/`])
+'''
+
+# Externally installed skills ship documentation examples with placeholder
+# credentials. Skip only the known placeholder shapes inside those skill trees;
+# personal skills and all other files are scanned with the default rules.
+filter = '''
+filter.matchesAny(attributes["path"], [
+  `(?:^|/)skills/azure-[^/]+/`,
+  `(?:^|/)skills/modern-web-guidance/`,
+  `(?:^|/)skills/entra-[^/]+/`,
+  `(?:^|/)skills/test-spec/`,
+]) && filter.containsAny(finding["match"], [
+  `localhost:5432`,
+  `administratorPassword`,
+  `AccountKey`,
+  `keyvaultref`,
+  `secretref:`,
+  `[System.Runtime`,
+  `sqlAdminPassword`,
+  `your-secret`,
+  `MLKEM768-`,
+  `postgres://user:`,
+  `postgresql://user:`,
+  `Password: `,
+  `Key', '`,
+])
+'''
+
+[extend]
+useDefault = true

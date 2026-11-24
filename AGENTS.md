@@ -225,6 +225,18 @@
   バージョンは変わり得るため、必要なら `kubectl version --client`、
   `kind version`、`k3d version` で確認する。
 
+### Flatpak のユーザースコープ
+
+- `flatpak install --user` では依存解決にユーザースコープのリモートだけが
+  使われる。system スコープに `flathub` があっても参照されず、
+  `error: ... requires the runtime org.kde.Platform/x86_64/6.10 which was
+  not found` のように失敗する。
+- 対処: 先に `flatpak remote-add --user --if-not-exists flathub
+  https://dl.flathub.org/repo/flathub.flatpakrepo` を実行し、アプリ固有の
+  リモートも `--user` で追加する。
+- 実例: 2026-11-24 の Ladybird α（2026.47.7）インストールで再現し、
+  上記で解消した（root 権限不要で導入可能）。
+
 ### クロスプラットフォーム対応方針
 
 アプリケーションの対応範囲と動作検証環境は、次のとおりとする（2026-11-23時点）。

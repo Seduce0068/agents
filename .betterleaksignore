@@ -1,0 +1,24 @@
+# False positives verified 2026-11-24: Azure/Entra skill documentation and
+# test templates contain placeholder credentials (user:pass@host, your-secret-value,
+# keyvaultref:, MLKEM768-X25519) — not real secrets.
+0b0a6954a69af0a4a2bc38a9edce6f9b6afa6174:skills/test-spec/templates/integration-api.md:generic-credential-uri:263
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-app-onboard/scaffold/references/bicep-patterns-data.md:generic-password:28
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-app-onboard/scaffold/references/bicep-patterns-data.md:generic-password:70
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-app-onboard/scaffold/scripts/scaffold-conformance.ps1:generic-password:74
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-app-onboard/scaffold/scripts/scaffold-conformance.ps1:generic-password:75
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-app-onboard/scaffold/scripts/scaffold-conformance.sh:generic-password:70
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-app-onboard/scaffold/scripts/scaffold-conformance.sh:generic-password:71
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-cloud-migrate/references/services/container-apps/cloudrun-deployment-guide.md:generic-password:173
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-cloud-migrate/references/services/container-apps/deployment-guide.md:generic-password:138
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-cloud-migrate/references/services/container-apps/deployment-guide.md:generic-password:149
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-cloud-migrate/references/services/container-apps/fargate-deployment-guide.md:generic-password:168
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-cloud-migrate/references/services/container-apps/fargate-deployment-guide.md:generic-password:180
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-cloud-migrate/references/services/container-apps/spring-deployment-guide.md:generic-password:126
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-kubernetes/azure-kubernetes-app-deploy/knowledge-packs/frameworks/fastapi.md:generic-credential-uri:83
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-kubernetes/azure-kubernetes-app-deploy/knowledge-packs/frameworks/fastapi.md:generic-credential-uri:85
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-prepare/references/services/app-service/templates/recipes/redis/source/nodejs.md:generic-password:52
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-prepare/references/services/container-apps/day2-operations.md:generic-password:115
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/azure-prepare/references/services/sql-database/bicep.md:generic-password:199
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/entra-app-registration/references/cli-commands.md:generic-password:151
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/modern-web-guidance/guides/security/client-side-encryption.md:generic-api-key:187
+30bfb3d6c5173f62e392465a173571b65fcb12b3:skills/modern-web-guidance/guides/security/client-side-encryption.md:generic-api-key:201

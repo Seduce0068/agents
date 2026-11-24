@@ -399,7 +399,7 @@
         "dsh": {
           "serverName": "rustxng",
           "transport": "stdio",
-          "command": "/home/koppe/.local/bin/rustxng",
+          "command": "<home>/.local/bin/rustxng",
           "args": [
             "mcp"
           ],

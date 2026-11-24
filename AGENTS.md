@@ -201,13 +201,10 @@
 
 ### ユーザー環境
 
-- PC: Kubuntu 2026.04 LTS（Ryzen 5 3600 / DDR4 64GB /
-  Samsung 970 EVO 1TB SSD + HDD 1TB + USBポータブルSSD / GeForce GTX 1660 SUPER /
-  ASUS PRIME B450-PLUS / G-GEAR 69JD）。ブラウザは Microsoft Edge Stable。
-- スマートフォン: Galaxy S26 Ultra（16GB RAM / 1TB、SIMフリー、SM-S948Q）、Android 16、Microsoft Edge（Stable）。回線は日本通信「合理的みんなのプラン」（20GB）。
-- 自宅回線: ドコモ HOME 5G（ルーター HR02）。
-- その他: ユーザスクリプトマネージャーは Violentmonkey。
-- 開発ツール: [mise](https://mise.jdx.dev/) をインストール済み。
+- PC: Kubuntu（Linux）をメイン開発環境とし、実機動作検証にも対応する。
+- スマートフォン: Android（Edge / Violentmonkey）と iOS（PWA）に対応する。
+- 回線・キャリア等の固有情報は記載しない。
+- 開発ツール: [mise](https://mise.jdx.dev/) を想定。
 - Windows向け手順ではなく、Linux/Kubuntu向けの手順を提供する।
 
 ### 権限昇格とコンテナランタイム
@@ -302,7 +299,7 @@
 
 ハーネス間（DSH / opencode / Zed 等）では、**共有フォルダのファイルをタスクとして受け渡し、人間がプロンプトの運び手（meat prompt proxy）になる**方式を標準とする。専用サーバは必須ではない。
 
-- 共有フォルダ（正）: `/home/koppe/document/deepseek-harness/default-workspace/.agent-bridge`
+- 共有フォルダ（正）: `<workspace>/.agent-bridge`
   - 環境変数 `AGENT_BRIDGE_DIR` があればそちらを優先する。
   - `tasks/`（依頼）、`results/`（結果）、`status/`（状態）を使う。IDは `YYYYMMDD-HHMMSS-<slug>`、1タスク1ファイル。
 - 依頼側（どのハーネスでも同じ）:

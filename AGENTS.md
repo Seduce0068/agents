@@ -76,6 +76,30 @@
 - ローカルフックは `SKIP=betterleaks` / `git commit --no-verify` で回避できるため、**CI でのスキャンを最終ゲートとして必ず併設**する。
 - 設定例（[v1.x 公式 README](https://github.com/betterleaks/betterleaks/blob/v1.x/README.md) 準拠）: `.pre-commit-config.yaml` に `repo: https://github.com/betterleaks/betterleaks` と `id: betterleaks` を置き、`pre-commit install` と `pre-commit autoupdate` で運用する。2026-11-22 時点の安定版は v1.10.1 で、`main` ブランチは v2 開発中のため `rev` は v1 タグにピン留めする。
 - Betterleaks は Gitleaks の開発陣（原作者を含む）が保守する後継ツール。詳細は[公式リポジトリ](https://github.com/betterleaks/betterleaks)を参照する。
+- **Betterleaks は画像内テキストを走査しない**。スクリーンショットに実アカウント名・
+  ホスト名・履歴・マウント先が写る場合、`betterleaks git` が hit zero でも漏洩は残る。
+  画像を含むリポジトリでは `tesseract <image> stdout -l eng` 等の OCR を別途走査し、
+  実識別子（アカウント名、内部ホスト、IP、ローカルパス）を検出すること。
+  OCR は日本語のみの画像では精度が落ちるため、必要なら `eng+jpn` や目視を併用する。
+- **`git filter-repo` 等の履歴改変後は `.betterleaksignore` の fingerprint が
+  無効になる**（コミットハッシュが変わるため）。履歴改変後は必ず `betterleaks git` を
+  再走査し、現在の fingerprint で allowlist を再生成して hit zero を確認する。
+  fingerprint 行にダミー接続 URI などの文字列が残ると ignore ファイル自身が
+  再検出されるため、コメントはマスク済みの表現に留める。
+
+### 公開リポジトリのサニタイズ基準（2026-11-25 の監査で確立）
+
+個人リポジトリを public にする前は、テキストだけでなく以下を全リポジトリ横断で確認する。未知の残存が出続けるため、目視とスキャナを併用し、新規検出がゼロになるまで繰り返す。
+
+- **個人・アカウント識別子**: 現行/旧アカウント名、ローカルユーザー名、実メール、実名。テスト fixture の canary や著作権表記、スキル使用例の
+  GUID/リソース名にも残り得る。プレースホルダは `<user>` / `TEST_USER` / `00000000-0000-...` / `example-rg` 等を使う。
+- **内部ネットワーク**: tailnet ドメインとホストラベル、LAN/IPv6 プレフィックス、ルータ機種・回線事業者・プラン名、実 MAC、実 NIC 名。IPv6 は `2001:db8::/32`、IPv4 は `203.0.113.0/24` 等の RFC 予約レンジに置換する。
+- **実機 finger print**: CPU/GPU/マザーボード/ストレージ型番、容量、カーネルビルド文字列、解像度・スケール、PID・時刻・ベンチ値
+  。汎用表現（「汎用 GPU」「Kubuntu/Wayland」等）または丸めた参考値に置換する。
+- **マシン固有パス import**: `import ... from "/home/..."` や `C:/Users/...` はパッケージ名 import へ変更し、対応する devDependency を追加する。
+- **画像**: 上記 OCR 走査で検出された画像は削除し、`git filter-repo --path <file> --invert-paths` で
+  履歴からも消去して force push する（実行前にユーザー確認）。削除後は参照 Markdown も更新する。
+- **意図的な防御用パターン**: 公開ゲートの検出リストに含める `koppe|onoderakeita` 等は「機微情報の残存」ではない。ただし「意図的プレースホルダ」と誤判定する前に必ず実ファイルを読み、実際に旧名が残っていないことを確認する（監査で誤検知として却下した箇所から後日実残存が見つかった事例あり）。
 
 ## 5. 個人リポジトリの CI 方針
 
@@ -324,7 +348,7 @@
 ## 12. プロジェクト AGENTS.md との関係
 
 - 各個人プロジェクトの `AGENTS.md` は、この共通指示とハーネス固有指示を継承し、プロジェクト固有の差分だけを記述する。
-- プロジェクト固有の TODO は**各プロジェクトおよび個人リポジトリのルート `todo.md`** に置き、これを正とする。個人リポジトリには `github.com/Seduce0068/*` を含む。グローバルTODO（`~/.config/opencode/todo.md`）には複数プロジェクト横断のタスクだけを置く。
+- プロジェクト固有の TODO は**各プロジェクトおよび個人リポジトリのルート `todo.md`** に置き、これを正とする。個人リポジトリには `github.com/Seduce0068/*` と `github.com/onoderakeita/*` を含む。グローバルTODO（`~/.config/opencode/todo.md`）には複数プロジェクト横断のタスクだけを置く。
   - 配置対象はユーザー管理下のプロジェクト・リポジトリに限る。上流クローン、`references/` 配下の参照用リポジトリ、worktree、そしてグローバルTODO正本を含む設定リポジトリ（`.config/opencode`、`.agents`）は対象外とする。
   - 新規に作成する `todo.md` はセクション8の形式規約に従い、OKF フロントマターと `## 進行中` / `## 未着手`（優先度 高 → 中 → 低）/ `## 完了` / `## メモ` の見出しで構成する。既存の `todo.md` は独自形式を含めて内容を保持し、上書きせず、必要に応じて追記・統合する。
 - 共通指示とプロジェクトの `AGENTS.md` が矛盾する場合は、プロジェクト固有の記述を優先する。

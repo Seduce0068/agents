@@ -48,7 +48,7 @@ azd config get defaults
 Returns JSON with any configured defaults:
 ```json
 {
-  "subscription": "25fd0362-aa79-488b-b37b-d6e892009fdf",
+  "subscription": "<subscription-id>",
   "location": "eastus2"
 }
 ```
@@ -68,7 +68,7 @@ Use `ask_user` with the **actual subscription name and ID**:
 ```
 Question: "Which Azure subscription would you like to deploy to?"
 Choices: [
-  "Use current: jongdevdiv (25fd0362-aa79-488b-b37b-d6e892009fdf) (Recommended)",
+  "Use current: <subscription-name> (<subscription-id>) (Recommended)",
   "Let me specify a different subscription"
 ]
 ```
@@ -134,7 +134,7 @@ After confirmation, record in `.azure/deployment-plan.md`:
 
 ```markdown
 ## Azure Context
-- **Subscription**: jongdevdiv (25fd0362-aa79-488b-b37b-d6e892009fdf)
+- **Subscription**: <subscription-name> (<subscription-id>)
 - **Location**: eastus2
 ```
 

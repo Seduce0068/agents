@@ -244,7 +244,7 @@ fi
 azd env new myapp-dev --no-prompt
 
 # 2. Set subscription
-azd env set AZURE_SUBSCRIPTION_ID 25fd0362-...
+azd env set AZURE_SUBSCRIPTION_ID <subscription-id>
 
 # 3. Set location (after checking RG doesn't conflict)
 azd env set AZURE_LOCATION westus2

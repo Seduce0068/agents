@@ -82,9 +82,8 @@ DSH 側は `--emit-dsh` の出力を各プロファイルの `cordis.patch.yml` 
 
 ## 追跡方針
 
-- `skills/` のうち**個人作成のものだけ**を `.gitignore` の whitelist で追跡する。
-- 外部から導入したスキル（Azure/Codex バンドル等）は `.skill-lock.json` と
-  `.copilot-for-azure-skills-manifest.json` が管理するため追跡しない。
+- `skills/` 配下は**全スキルを Git で追跡**する（外部導入スキルも実ファイルを版管理）。
+- 出典・ハッシュは `.skill-lock.json` / `.copilot-for-azure-skills-manifest.json` に記録する。
 - 秘密情報は置かない。API キー等は各ハーネスの秘密管理（`{env:}` / `{file:}` 参照）に置く。
 
 ## 各ハーネスとの接続（2026-11-12 時点）

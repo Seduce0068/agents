@@ -21,10 +21,10 @@ Required arguments:
   --deployment          Deployment name
 
 Example:
-  $0 --subscription d5320f9a-73da-4a74-b639-83efebc7bb6f \\
-     --resource-group bani-host \\
-     --foundry-resource banide-host-resource \\
-     --project banide-host \\
+  $0 --subscription 00000000-0000-0000-0000-000000000000 \\
+     --resource-group example-rg \\
+     --foundry-resource example-resource \\
+     --project example-project \\
      --deployment text-embedding-ada-002
 EOF
     exit 1

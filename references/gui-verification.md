@@ -59,6 +59,17 @@ tags:
 - 確認結果は Runtime Proof として扱い、過去のログや記憶より優先する。
 - GUIアプリの動作確認は、ユーザーに委ねずエージェント自身で検証する。Xwayland(X11)アプリは `xwininfo -root -tree` / `xprop`、Waylandネイティブは `kdotool` 等で確認する。取得できない場合は理由を添えてユーザーに確認を依頼する。
 
+## Wayland ネイティブ GUI の操作と検証（KDE Plasma）
+
+- ウィンドウ制御は `kdotool`（v0.3.0: `search` / `windowactivate` / `getactivewindow` / `getwindowgeometry` / `kwinscript`）。key / click コマンドは非対応で、入力は `ydotool` を使う。
+- 入力は `ydotool`（uinput 仮想デバイス）。`/dev/uinput` は root:input 0660。導入は通常の `sudo apt-get install ydotool` → `sudo usermod -aG input <user>` → `ydotoold --socket-perm 0666` の起動。
+  0666 ソケットは任意ローカルユーザーが入力注入できるため、恒久運用では 0600 と所有者／グループへ戻す。
+- キーは `ydotool key -d 50 106:1 106:0`（右）／`105:1 105:0`（左）のように `<keycode>:<1|0>` で down/up を対で送る。-d はイベント間隔であり同期プリミティブではない。
+- `ydotool mousemove` は相対移動。`kdotool getmouselocation` で現在位置を確認しながら目的座標へ合わせる。
+- `windowactivate` に `--sync` は無い。活性化後 `kdotool getactivewindow` が対象 UUID と一致するまで待ち、不一致なら入力を送らない。
+- 撮影は `spectacle -a -b -n -o <path>`、文字検出は `tesseract <image> stdout -l eng+jpn`。OCR 単独で原因を断定せず画像も確認する。
+- Tauri の `cli-options-server.json` は dev/build セッションが生きている間だけ存在する。欠落時は注入前に fail-closed で中止しセッションを再起動する。Wayland の `cx.activate(true)` は no-op なのでフォーカスは `kdotool` で別途確認する。
+- GPUI（`gpui-pre-platform`）は `wayland` / `x11` feature が無いと headless になり、`open_window` が成功しても KWin に現れない。feature 明示と `compositor_name` の確認を先に行う。
 ## GUIアプリのビルド成果物をアプリケーションメニューへ配置
 
 - `cargo build --release` だけではバイナリが `target/release/` に生成されるだけで、KDE のアプリケーションメニューには登録されない。ビルド後に成果物を使える状態にするには、リポジトリが用意しているローカルインストールスクリプトを実行する。

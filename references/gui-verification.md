@@ -18,7 +18,7 @@ tags:
 
 ## 権限昇格とコンテナランタイム
 
-- `sudo` はパスキー／顔認証による**対話承認**で利用できる。`sudo -n`（非対話）が失敗しても「sudo は使えない」と断定しない。権限が必要な操作ではユーザーに承認を促す形で `sudo` を実行する。
+- `sudo` はパスキー／顔認証による**対話承認**で利用できる。権限が必要な操作ではユーザーに承認を促す形で通常の `sudo` を実行する。`sudo -n` は使わず、失敗から「sudo は使えない」と断定しない。
 - コンテナ操作はまず `kiri`（`/usr/bin/kiri`、Rust 製の Docker 互換 CLI）を確認する。Docker CLI も導入済みだが、セッションによって `docker` グループが反映されず `permission denied` になることがある。その場合は再ログイン、`newgrp docker`、または上記の対話 `sudo` を使う。
 - `kiri daemon --help` は終了せずハングすることがあるため、ヘルプ確認では `timeout` を付ける。
 - 2026-11-22 時点で `kubectl` / `kind` / `k3d` は `~/.local/bin` に導入済み。バージョンは変わり得るため、必要なら `kubectl version --client`、`kind version`、`k3d version` で確認する。

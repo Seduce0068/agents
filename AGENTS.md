@@ -118,7 +118,7 @@
   macOS は実機検証しない。ブラウザは Chrome / Edge / Brave / Firefox / Safari。
 - 対話シェルとスクリプトは bash（`set -euo pipefail`）。ユーザー提示コマンドは bash 構文。
 - エージェントで実行できる確認は自分で行う。結果は Runtime Proof として扱う。
-- 権限が必要なら対話 `sudo` を促す。`sudo -n` 失敗で「使えない」と断定しない。
+- 権限が必要なら通常の `sudo` を実行し、対話認証が必要ならユーザーへ依頼する。`sudo -n` は使わない。失敗から「使えない」と断定しない。
 - コンテナはまず `kiri` を確認（`kiri daemon --help` は `timeout` 付き）。
 - **GUI 検証時に** `~/.agents/references/gui-verification.md` を必ず読む。
 

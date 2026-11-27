@@ -268,6 +268,7 @@ worktree 分離とファイルポリシーを使う。子の起動時にハー�
 
 ```text
 ID: {id}
+ロール: {coordinator|executor}
 タスク種別: {review|coding|design|investigate|dogfood|ux}
 フェーズ: R{n} / {分析|主実行|補完|レビュー|反映}
 担当: {target}
@@ -277,6 +278,9 @@ ID: {id}
 受け入れ条件: {acceptance_criteria}
 検証のヒント: {verification_hint}
 指示:
+  親は coordinator として計画・割当て・検収を担い、子は executor として
+  割当てられた範囲のみを実行する。判断が必要な事項は勝手に進めず親へ返す。
+  subagent_fork で生えた子も executor として同じ方針を継承する。
   担当範囲と権限に従ってタスクを実行する。実際の検証は親が行うため、
   子は検証コマンドの提案のみを作る。変更内容・理由・影響範囲を報告する。
   最大10件まで。

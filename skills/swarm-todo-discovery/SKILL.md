@@ -202,12 +202,14 @@ DSH では agent preset、opencode では agent 定義の `tools` deny を事前
 
 ```text
 ID: {id}
+ロール: executor（親は coordinator。fork した子も同じ方針を継承）
 担当: {viewpoint} / {target_files}
 ラウンド: R{n}
 禁止: ファイルの編集・作成・削除、shell 実行、外部送信、秘密情報の読み取り、
       子間通信（send_message / list_agents）。
 既知の発見: {compacted_known_findings}
 指示:
+  親が計画・割当て・検収を担う。子は担当範囲のみを調査し、判断が必要なら親へ返す。
   担当範囲だけを読み取り系ツールで調査し、未知の残タスク・機能追加案を抽出する。
   各項目に必ず根拠（path:line）を付け、確信度を明示する。
   既知の発見と同一内容は報告しない。最大10件まで。

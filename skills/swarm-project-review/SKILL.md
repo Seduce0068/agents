@@ -185,6 +185,7 @@ DSH では agent preset、opencode では agent 定義の `tools` deny を事前
 
 ```text
 ID: {id}
+ロール: executor（親は coordinator。fork した子も同じ方針を継承）
 担当: {viewpoint} / {target_dirs}
 ラウンド: R{n}
 モード: 読み取り専用。修正は一切行わない。
@@ -192,6 +193,7 @@ ID: {id}
       担当外ディレクトリの走査、担当ディレクトリ内の秘密ファイルの直接読み取り。
 既知の指摘: {compacted_known_findings}
 指示:
+  親が計画・割当て・検収を担う。子は担当範囲のみをレビューし、判断が必要なら親へ返す。
   渡されたマスク済み抽出物と担当範囲を読み、観点に沿った問題を列挙する。
   指摘ごとに根拠（path:line）、影響、推奨対応を書き、確信度を明示する。
   事実確認できない推測は speculative とし、断定的に書かない。最大10件まで。

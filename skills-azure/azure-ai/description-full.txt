@@ -1,0 +1,1 @@
+"Build and troubleshoot Azure AI Search, Speech, Document Intelligence, Content Understanding, Translator, Content Safety, and OpenAI apps. WHEN: AI Search, vector search, hybrid search, semantic search, indexer, speech-to-text, text-to-speech, fast or batch transcription, Speech SDK logs, session ID, result ID, OCR, document translation, glossary."

@@ -1,0 +1,38 @@
+# このパッチは ~/.agents/bin/mcp-sync.rs --emit-dsh が生成する。直接編集しない。
+# 正本: ~/.agents/mcp.json
+
+- insert:
+    - id: mcp-github
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: github
+        transport: streamable-http
+        url: https://api.githubcopilot.com/mcp/
+        headers:
+          Authorization: !!js `Bearer ${process.env.GITHUB_MCP_TOKEN}`
+          X-MCP-Toolsets: repos,pull_requests,issues
+        toolCallTimeoutMs: 60000
+        failOnStartupError: false
+
+- insert:
+    - id: mcp-jarvis
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: jarvis
+        transport: streamable-http
+        url: http://127.0.0.1:8082/mcp
+        toolCallTimeoutMs: 60000
+        failOnStartupError: false
+
+- insert:
+    - id: mcp-rustxng
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: rustxng
+        transport: stdio
+        command: /home/koppe/.local/bin/rustxng
+        args:
+          - mcp
+        toolCallTimeoutMs: 60000
+        failOnStartupError: false
+

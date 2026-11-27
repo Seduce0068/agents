@@ -1,0 +1,225 @@
+  "mcp": {
+    // このブロックは ~/.agents/bin/mcp-sync.rs --apply が生成する。直接編集しない。
+    // 正本: ~/.agents/mcp.json
+    "servers": {
+      // agentrouter.to is a separate capability gateway (AGENTIC_API_KEY, aak_ tokens),
+      // not the agentrouter.org model API. Enable only for email/phone/etc. tools.
+      "agentrouter-capabilities": {
+        "disabled": true,
+        "headers": {
+          "Authorization": "Bearer {env:AGENTIC_API_KEY}"
+        },
+        "timeout": {
+          "catalog": 30000,
+          "execution": 120000,
+          "startup": 30000
+        },
+        "type": "remote",
+        "url": "https://mcp.agentrouter.to"
+      },
+      // Termux/Android: Playwright 同様、システムの Chromium を明示して
+      // ヘッドレス起動する。Android では sandbox と /dev/shm が使えないため
+      // --no-sandbox と --disable-dev-shm-usage をランチャーが付与する。
+      // Kubuntu では Chrome の自動検出に任せる。
+      "chrome-devtools": {
+        "command": [
+          "node",
+          "{env:HOME}/.config/opencode/chrome-devtools-mcp-launcher.cjs",
+          "--headless",
+          "--userDataDir",
+          ".opencode/browser-session",
+          "--no-usage-statistics"
+        ],
+        "cwd": ".",
+        "disabled": false,
+        "environment": {
+          "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+        },
+        "timeout": {
+          "catalog": 30000,
+          "execution": 300000,
+          "startup": 45000
+        },
+        "type": "local"
+      },
+      // ライブラリ/CLI/クラウド公式ドキュメント（リモート）。
+      "context7": {
+        "disabled": false,
+        "timeout": {
+          "catalog": 30000,
+          "execution": 120000,
+          "startup": 30000
+        },
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp"
+      },
+      // DeepWiki によるOSSリポジトリ知識（リモート）。
+      "deepwiki": {
+        "disabled": false,
+        "oauth": false,
+        "type": "remote",
+        "url": "https://mcp.deepwiki.com/mcp"
+      },
+      // Exa Web検索・ページ取得（リモート）。
+      "exa": {
+        "disabled": false,
+        "type": "remote",
+        "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
+      },
+      // ローカルLLMゲートウェイ。既定は無効。
+      "local-llm": {
+        "command": [
+          "opencode-local-llm"
+        ],
+        "disabled": true,
+        "timeout": {
+          "catalog": 10000,
+          "execution": 60000,
+          "startup": 30000
+        },
+        "type": "local"
+      },
+      // Superseded by Serena below. Kept as a disabled fallback: flip disabled to false
+      // if Serena's language backend does not cover a target language.
+      "lsp": {
+        "command": [
+          "npx",
+          "-y",
+          "lsp-mcp-server@latest"
+        ],
+        "cwd": ".",
+        "disabled": true,
+        "environment": {
+          "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+        },
+        "type": "local"
+      },
+      // セッション横断の知識保存（stdio + ランチャー）。
+      "memory": {
+        "command": [
+          "node",
+          "{env:HOME}/.config/opencode/mcp-node-launcher.cjs",
+          "@modelcontextprotocol/server-memory/dist/index.js"
+        ],
+        "disabled": false,
+        "environment": {
+          "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}",
+          "MEMORY_FILE_PATH": "{env:HOME}/.local/share/opencode/memory.jsonl"
+        },
+        "timeout": {
+          "catalog": 5000,
+          "execution": 30000,
+          "startup": 10000
+        },
+        "type": "local"
+      },
+      // Termux/Android: playwright-core は process.platform === "android" を
+      // 未サポートとして読み込み時に例外を投げる。ランチャーで linux として
+      // 提示し、システムの Chromium を --executable-path で起動する。
+      "playwright": {
+        "command": [
+          "node",
+          "{env:HOME}/.config/opencode/playwright-mcp-launcher.cjs",
+          "--headless",
+          "--output-dir",
+          "{env:HOME}/.cache/playwright-mcp/output",
+          "--viewport-size",
+          "1280x720"
+        ],
+        "cwd": ".",
+        "disabled": false,
+        "environment": {
+          "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+        },
+        "timeout": {
+          "catalog": 30000,
+          "execution": 300000,
+          "startup": 60000
+        },
+        "type": "local"
+      },
+      // Serena: LSP-based semantic code toolkit, positioned as the replacement for the
+      // standalone lsp MCP above. Serena v2 defaults to the REPL agent interface, which
+      // exposes only initial_instructions, activate_project, and serena_repl.
+      // --project-from-cwd auto-activates the nearest git/.serena project.
+      // The dashboard is disabled to avoid browser popups and port contention when
+      // opencode spawns one Serena instance per session.
+      "serena": {
+        "command": [
+          "{env:HOME}/.local/bin/serena",
+          "start-mcp-server",
+          "--context",
+          "ide",
+          "--project-from-cwd",
+          "--enable-web-dashboard",
+          "false",
+          "--open-web-dashboard",
+          "false"
+        ],
+        "cwd": ".",
+        "disabled": false,
+        "environment": {
+          "ANDROID_APP_PATH": "{env:HOME}",
+          "PYTHONUNBUFFERED": "1"
+        },
+        "timeout": {
+          "catalog": 60000,
+          "execution": 180000,
+          "startup": 120000
+        },
+        "type": "local"
+      },
+      // SQLite MCPサーバ。既定は無効。
+      "sqlite": {
+        "command": [
+          "npx",
+          "-y",
+          "@modelcontextprotocol/server-sqlite",
+          ".local/share/opencode/opencode.db"
+        ],
+        "cwd": ".",
+        "disabled": true,
+        "timeout": {
+          "catalog": 5000,
+          "execution": 30000,
+          "startup": 10000
+        },
+        "type": "local"
+      },
+      // Tavily 深掘りリサーチ（リモート）。
+      "tavily-mcp": {
+        "disabled": false,
+        "headers": {
+          "DEFAULT_PARAMETERS": "{\"include_images\": false, \"max_results\": 8, \"search_depth\": \"basic\"}"
+        },
+        "timeout": {
+          "catalog": 30000,
+          "execution": 120000,
+          "startup": 90000
+        },
+        "type": "remote",
+        "url": "https://mcp.tavily.com/mcp/"
+      },
+      // time-mcp: timezone-aware clock tools (current_time, convert_time, etc.).
+      // Requires: npm install -g time-mcp
+      // The upstream entrypoint prints a startup banner to stdout; this launcher
+      // forwards only JSON-RPC lines so the stdio transport stays clean.
+      "timemcp": {
+        "command": [
+          "node",
+          "{env:HOME}/.config/opencode/time-mcp-launcher.cjs"
+        ],
+        "cwd": ".",
+        "disabled": false,
+        "environment": {
+          "LD_PRELOAD": "{env:OPENCODE_LD_PRELOAD}"
+        },
+        "timeout": {
+          "catalog": 10000,
+          "execution": 30000,
+          "startup": 15000
+        },
+        "type": "local"
+      }
+    }
+  }

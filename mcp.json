@@ -387,30 +387,6 @@
         "The upstream entrypoint prints a startup banner to stdout; this launcher",
         "forwards only JSON-RPC lines so the stdio transport stays clean."
       ]
-    },
-    "rustxng": {
-      "description": "RustXNG メタ検索 MCP（ローカル stdio）。search / read_page を提供。",
-      "enabled": true,
-      "harnesses": {
-        "opencode": {
-          "supported": false,
-          "reason": "ローカル stdio サーバは DSH 専用として登録（opencode 側は未設定）"
-        },
-        "dsh": {
-          "serverName": "rustxng",
-          "transport": "stdio",
-          "command": "<home>/.local/bin/rustxng",
-          "args": [
-            "mcp"
-          ],
-          "profiles": [
-            "web",
-            "agentrouter"
-          ],
-          "toolCallTimeoutMs": 60000,
-          "failOnStartupError": false
-        }
-      }
     }
   }
 }

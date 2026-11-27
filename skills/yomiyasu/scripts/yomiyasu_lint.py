@@ -10,6 +10,7 @@ paper は慎重表現をぼかしとして削る規則がないので、外す�
 """
 
 from __future__ import annotations
+from yomiyasu_common import BOLD_ASCII_PUNCT, BOLD_BRACKETS
 __version__ = "3.2.3"
 
 import os
@@ -2081,9 +2082,6 @@ def analyze_markdown_metrics(text: str) -> Dict[str, Any]:
 # ** がそのまま表示されることがある。CommonMark（記号に Unicode の P や S も入る）でも、GitHub の GFM（半角句読記号と P だけ）でも
 # 公開仕様に基づく限定された区切り判定を検査し、表示全体の保証ではない。直し方の案は、かっこの内側だけを太字にする → 句読点を太字の外に出す
 # → 文字に接する側に半角スペースを入れる、の順に試す。
-BOLD_ASCII_PUNCT = set("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
-BOLD_BRACKETS = {"「": "」", "『": "』", "（": "）", "(": ")", "【": "】", "〔": "〕", "［": "］", "[": "]",
-                 "〈": "〉", "《": "》", "“": "”", "‘": "’", "＜": "＞"}
 
 
 def _bold_ws(ch: str) -> bool:

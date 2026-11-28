@@ -34,8 +34,18 @@
 
 - `swarm-research` で特性・コスト・クオータを調べ、出典付きでレコードに追記する。
 - コストは `get_usage` / `get_member_usage` のモデル別 `cost_usd` を実測値として使う。
-- 残クオータは専用 API が無い場合は 429 の発生状況とコミュニティ情報を
-  スナップショットとして記録し、取得時刻を必ず添える。
+- 残クオータは Go サブスクの [usage API](https://opencode.ai/docs/console/go/#usage)
+  から取得する。現行パスは `GET https://opencode.ai/inference/go/v1/usage`
+  （旧 `/zen/go/v1/usage` も存続）。Go と同じ API キーを Bearer で渡す。
+- レスポンスは `usage.rolling`（5 時間）/`weekly`/`monthly` の
+  `percent`（**使用済み** 0〜100）と `resetsAt`、`status`（`ok` / `rate-limited`）。
+  5 時間 = 月間上限の 20%、週次 = 50%。ワークスペース全体の値でモデル別ではない。
+- モデル別の月間上限は [models API](https://opencode.ai/docs/console/api/models)
+  （`GET https://opencode.ai/inference/go/v1/models`）のメタデータで参照する。
+- 認証なしは 401、Go 契約が無いキーは 403。Zen のプリペイド残高は API で読めず
+  Console UI のみ（[issue #10448](https://github.com/anomalyco/opencode/issues/10448) 対応待ち）。
+- 無料モデルのリクエスト上限は非公開のため、429 の発生状況を実測で記録する。
+  取得時刻と出典を必ず添える。
 - 出典には信頼度ラベル（公式 / 実測 / コミュニティ / 未確認）を付ける。
 
 ### 更新

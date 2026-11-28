@@ -38,7 +38,7 @@ status: active
 | --- | --- | --- | --- |
 | cost_usd（24h） | 0 | 2026-11-28T15:29+09:00 | `get_usage` 実測 |
 | requests（24h） | 25 | 2026-11-28T15:29+09:00 | `get_usage` 実測 |
-| 残クオータ | 未確認 | - | opencodeGO の残量 API は未確認 |
+| 残クオータ | モデル別は未確認（Go usage は workspace 単位） | - | [usage API](https://opencode.ai/docs/console/go/#usage) |
 | キャンペーン状態 | 無料（実測） | 2026-11-28T15:29+09:00 | `get_usage` 実測 |
 
 ## 調査 TODO

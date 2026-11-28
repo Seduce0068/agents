@@ -1,15 +1,16 @@
 ---
 type: Reference
 title: "iceman-contributor-free"
-description: "opencodeGO の登録モデル。24h の使用実績はなくコストは未確認"
+description: "opencodeGO のステルス無料モデル。学習利用あり・公式メタデータ付き"
 tags:
   - model
   - opencode-go
+  - stealth
 generated:
   by: dsh-agent
   at: "2026-11-28T15:38:27+09:00"
 verified:
-  at: "2026-11-28T15:38:27+09:00"
+  at: "2026-11-28T15:50:41+09:00"
 status: active
 ---
 
@@ -27,25 +28,32 @@ status: active
 
 | 観点 | 値 | 出典 | 信頼度 |
 | --- | --- | --- | --- |
-| 応答速度 | 未確認 | - | 未確認 |
-| 推論・実装能力 | 未確認 | - | 未確認 |
-| コンテキスト長 | 未確認 | - | 未確認 |
+| 応答速度 | 未確認（ベンチ未実施） | - | 未確認 |
+| 能力・特徴 | Stealth model, free for a limited time（期間限定無料） | models API | 公式 |
+| 推論 | 対応（effort の選択肢は公開なし） | models API | 公式 |
+| コンテキスト長 | 262,144 tokens | models API | 公式 |
+| 出力上限 | 131,072 tokens | models API | 公式 |
+| 学習利用 / ZDR | training: true / zdr: false（プロンプトが学習に利用される） | models API | 公式 |
 | 安定性 | 未確認（失敗の有無は未計測） | - | 未確認 |
 
 ## コスト / クオータ（スナップショット）
 
 | 項目 | 値 | 取得時刻 | 出典 |
 | --- | --- | --- | --- |
+| 公式価格（input / output） | 0 / 0 USD per 1M tokens | 2026-11-28T15:49+09:00 | models API |
 | cost_usd（24h） | 未確認（使用実績なし） | - | `get_usage` に出現せず |
 | requests（24h） | 0 | 2026-11-28T15:29+09:00 | `get_usage` 実測 |
-| 残クオータ | モデル別は未確認（Go usage は workspace 単位） | - | [usage API](https://opencode.ai/docs/console/go/#usage) |
-| キャンペーン状態 | 未確認（名称は free を示すが実測なし） | - | 未確認 |
+| Go 月間上限 | なし（monthly_usage: null） | 2026-11-28T15:49+09:00 | models API |
+| 残クオータ | モデル別なし。workspace 全体は README の Go usage を参照 | 2026-11-28T15:49+09:00 | usage API |
+
+学習利用が true のため、機微情報を含むタスクへの割当ては避ける。
 
 ## 調査 TODO
 
 - [ ] 1 回だけ呼び出してコストと速度を実測する。
-- [ ] 速度・能力・コンテキスト長をコミュニティ情報でも裏取りする。
+- [ ] ステルス-model の正体をコミュニティ情報で裏取りする。
 
 ## 更新履歴
 
-- 2026-11-28: 初期レコード作成（登録情報と `get_usage` のスナップショットのみ）。
+- 2026-11-28 15:38: 初期レコード作成。
+- 2026-11-28 15:50: 認証済み models API / usage API の値を追記。
